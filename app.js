@@ -7,6 +7,19 @@ const fs = require('fs/promises');
   const RENAME_FILE = 'rename the file';
   const ADD_TO_FILE = 'add to the file';
 
+  const checkIfFileExist = async (path) => {
+    try {
+      const fileHandle = await fs.open(path, 'r');
+      await fileHandle.close();
+      return true;
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        return false;
+      }
+      console.error('An unexpected error occured', error);
+    }
+  };
+
   const createFile = async (path) => {
     try {
       const existingFileHandle = await fs.open(path, 'r');
@@ -17,6 +30,29 @@ const fs = require('fs/promises');
       const newFileHandle = await fs.open(path, 'w');
       console.log('A new file was successfully created.');
       newFileHandle.close();
+    }
+  };
+
+  const deleteFile = async (path) => {
+    try {
+      const fileExist = await checkIfFileExist(path);
+      if (!fileExist) {
+        return console.log(`The file ${path} does not exist.`);
+      }
+
+      console.log(`Deleting ${path}...`);
+
+      const result = await fs.unlink(path);
+
+      if (result === undefined) {
+        console.log('File was deleted successfully');
+      }
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        console.error(`Error: The file ${path} does not exist.`);
+      } else {
+        console.error(`Error deleting file: ${error.message}`);
+      }
     }
   };
 
@@ -39,6 +75,13 @@ const fs = require('fs/promises');
     if (command.includes(CREATE_FILE)) {
       const filePath = command.substring(CREATE_FILE.length + 1);
       createFile(filePath);
+    }
+
+    // delete a file:
+    // delete a file <path>
+    if (command.includes(DELETE_FILE)) {
+      const filePath = command.substring(DELETE_FILE.length + 1);
+      deleteFile(filePath);
     }
   });
 
