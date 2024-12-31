@@ -56,6 +56,24 @@ const fs = require('fs/promises');
     }
   };
 
+  const renameFile = async (oldPath, newPath) => {
+    try {
+      const fileExist = await checkIfFileExist(oldPath);
+      if (!fileExist) {
+        return console.log(`The file ${path} does not exist.`);
+      }
+
+      console.log(`Rename ${oldPath} to ${newPath}...`);
+      const result = await fs.rename(oldPath, newPath);
+
+      if (result === undefined) {
+        console.log('File was rename successfully');
+      }
+    } catch (error) {
+      console.error(`Error renaming file: ${error.message}`);
+    }
+  };
+
   const commandFileHandler = await fs.open('./command.txt', 'r');
 
   commandFileHandler.on('change', async () => {
@@ -82,6 +100,16 @@ const fs = require('fs/promises');
     if (command.includes(DELETE_FILE)) {
       const filePath = command.substring(DELETE_FILE.length + 1);
       deleteFile(filePath);
+    }
+
+    // rename a file:
+    // rename the file <path> to <new-path>
+    if (command.includes(RENAME_FILE)) {
+      const _idx = command.indexOf(' to ');
+      const oldFilePath = command.substring(RENAME_FILE.length + 1, _idx);
+      const newFilePath = command.substring(_idx + 4);
+
+      renameFile(oldFilePath, newFilePath);
     }
   });
 
