@@ -60,7 +60,7 @@ const fs = require('fs/promises');
     try {
       const fileExist = await checkIfFileExist(oldPath);
       if (!fileExist) {
-        return console.log(`The file ${path} does not exist.`);
+        return console.log(`The file ${oldPath} does not exist.`);
       }
 
       console.log(`Rename ${oldPath} to ${newPath}...`);
@@ -71,6 +71,24 @@ const fs = require('fs/promises');
       }
     } catch (error) {
       console.error(`Error renaming file: ${error.message}`);
+    }
+  };
+
+  const addToFile = async (path, content) => {
+    try {
+      const fileExist = await checkIfFileExist(path);
+      if (!fileExist) {
+        return console.log(`The file ${path} does not exist.`);
+      }
+
+      console.log(`Adding content to file...`);
+      const result = await fs.writeFile(path, content);
+
+      if (result === undefined) {
+        console.log('Content was added successfully');
+      }
+    } catch (error) {
+      console.error(`Error adding content to file: ${error.message}`);
     }
   };
 
@@ -110,6 +128,16 @@ const fs = require('fs/promises');
       const newFilePath = command.substring(_idx + 4);
 
       renameFile(oldFilePath, newFilePath);
+    }
+
+    // add to file:
+    // add to the file <path> this content: <content>
+    if (command.includes(ADD_TO_FILE)) {
+      const _idx = command.indexOf(' this content: ');
+      const filePath = command.substring(ADD_TO_FILE.length + 1, _idx);
+      const content = command.substring(_idx + 15);
+
+      addToFile(filePath, content);
     }
   });
 
