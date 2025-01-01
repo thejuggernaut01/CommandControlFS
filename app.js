@@ -70,7 +70,11 @@ const fs = require('fs/promises');
         console.log('File was rename successfully');
       }
     } catch (error) {
-      console.error(`Error renaming file: ${error.message}`);
+      if (error.code === 'ENOENT') {
+        console.error(`Error: The file ${oldPath} th} does not exist.`);
+      } else {
+        console.error(`Error renaming file: ${error.message}`);
+      }
     }
   };
 
@@ -88,7 +92,11 @@ const fs = require('fs/promises');
         console.log('Content was added successfully');
       }
     } catch (error) {
-      console.error(`Error adding content to file: ${error.message}`);
+      if (error.code === 'ENOENT') {
+        console.error(`Error: The file ${path} th} does not exist.`);
+      } else {
+        console.error(`Error adding content to file: ${error.message}`);
+      }
     }
   };
 
